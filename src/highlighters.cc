@@ -40,7 +40,7 @@ std::unique_ptr<Highlighter> make_highlighter(Func func, HighlightPass pass = Hi
         }
         Func m_func;
     };
-    return make_unique<SimpleHighlighter>(std::move(func), pass);
+    return std::make_unique<SimpleHighlighter>(std::move(func), pass);
 }
 
 template<typename T>
@@ -286,8 +286,8 @@ public:
 
         Regex ex{params[0], Regex::optimize};
 
-        return {id, make_unique<RegexHighlighter>(std::move(ex),
-                                                  std::move(faces))};
+        return {id, std::make_unique<RegexHighlighter>(std::move(ex),
+                                                       std::move(faces))};
     }
 
 private:
@@ -449,7 +449,7 @@ template<typename RegexGetter, typename FaceGetter>
 std::unique_ptr<DynamicRegexHighlighter<RegexGetter, FaceGetter>>
 make_dynamic_regex_highlighter(RegexGetter regex_getter, FaceGetter face_getter)
 {
-    return make_unique<DynamicRegexHighlighter<RegexGetter, FaceGetter>>(
+    return std::make_unique<DynamicRegexHighlighter<RegexGetter, FaceGetter>>(
         std::move(regex_getter), std::move(face_getter));
 }
 
@@ -827,7 +827,7 @@ struct WrapHighlighter : Highlighter
         };
         ParametersParser parser(params, param_desc);
 
-        return {"wrap", make_unique<WrapHighlighter>((bool)parser.get_switch("word"))};
+        return {"wrap", std::make_unique<WrapHighlighter>((bool)parser.get_switch("word"))};
     }
 
     const bool m_word_wrap;
@@ -966,7 +966,7 @@ struct LineNumbersHighlighter : Highlighter
         if (separator.length() > 10)
             throw runtime_error("Separator length is limited to 10 bytes");
 
-        return {"number_lines", make_unique<LineNumbersHighlighter>((bool)parser.get_switch("relative"), (bool)parser.get_switch("hlcursor"), separator.str())};
+        return {"number_lines", std::make_unique<LineNumbersHighlighter>((bool)parser.get_switch("relative"), (bool)parser.get_switch("hlcursor"), separator.str())};
     }
 
 private:
@@ -1158,7 +1158,7 @@ struct FlagLinesHighlighter : Highlighter
         // throw if wrong option type
         GlobalScope::instance().options()[option_name].get<LineAndFlagList>();
 
-        return {"hlflags_" + params[1], make_unique<FlagLinesHighlighter>(option_name, default_face) };
+        return {"hlflags_" + params[1], std::make_unique<FlagLinesHighlighter>(option_name, default_face) };
     }
 
 private:
@@ -1323,7 +1323,7 @@ struct RangesHighlighter : Highlighter
         // throw if wrong option type
         GlobalScope::instance().options()[option_name].get<TimestampedList<RangeAndFace>>();
 
-        return {"hlranges_" + params[0], make_unique<RangesHighlighter>(option_name)};
+        return {"hlranges_" + params[0], std::make_unique<RangesHighlighter>(option_name)};
     }
 
 private:
@@ -1404,7 +1404,7 @@ HighlighterAndId create_highlighter_group(HighlighterParameters params)
     ParametersParser parser{params, param_desc};
     HighlightPass passes = parse_passes(parser.get_switch("passes").value_or("colorize"));
 
-    return HighlighterAndId(parser[0], make_unique<HighlighterGroup>(passes));
+    return HighlighterAndId(parser[0], std::make_unique<HighlighterGroup>(passes));
 }
 
 HighlighterAndId create_reference_highlighter(HighlighterParameters params)
@@ -1717,7 +1717,7 @@ public:
         }
 
         auto default_group = parser.get_switch("default").value_or(StringView{}).str();
-        return {parser[0], make_unique<RegionsHighlighter>(std::move(regions), default_group)};
+        return {parser[0], std::make_unique<RegionsHighlighter>(std::move(regions), default_group)};
     }
 
 private:
