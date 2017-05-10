@@ -28,13 +28,10 @@ struct ReverseView
     Container m_container;
 };
 
-template<typename C>
-using RemoveReference = typename std::remove_reference<C>::type;
-
 struct ReverseFactory
 {
     template<typename Container>
-    ReverseView<RemoveReference<Container>> operator()(Container&& container) const
+    ReverseView<std::remove_reference_t<Container>> operator()(Container&& container) const
     {
         return {std::move(container)};
     }
@@ -110,7 +107,7 @@ struct FilterFactory
     FilterView<Container&, Filter> operator()(Container& container) const { return {container, std::move(m_filter)}; }
 
     template<typename Container>
-    FilterView<RemoveReference<Container>, Filter> operator()(Container&& container) const { return {std::move(container), std::move(m_filter)}; }
+    FilterView<std::remove_reference_t<Container>, Filter> operator()(Container&& container) const { return {std::move(container), std::move(m_filter)}; }
 
     Filter m_filter;
 };
@@ -164,7 +161,7 @@ struct TransformFactory
     TransformView<Container&, Transform> operator()(Container& container) const { return {container, std::move(m_transform)}; }
 
     template<typename Container>
-    TransformView<RemoveReference<Container>, Transform> operator()(Container&& container) const { return {std::move(container), std::move(m_transform)}; }
+    TransformView<std::remove_reference_t<Container>, Transform> operator()(Container&& container) const { return {std::move(container), std::move(m_transform)}; }
 
     Transform m_transform;
 };
@@ -177,9 +174,9 @@ template<typename Container, typename Separator = ValueOf<Container>,
 struct SplitView
 {
     using ContainerIt = IteratorOf<Container>;
-    using ValueType = typename std::conditional<std::is_same<void, ValueTypeParam>::value,
-                                                std::pair<IteratorOf<Container>, IteratorOf<Container>>,
-                                                ValueTypeParam>::type;
+    using ValueType = std::conditional_t<std::is_same<void, ValueTypeParam>::value,
+                                         std::pair<IteratorOf<Container>, IteratorOf<Container>>,
+                                         ValueTypeParam>;
 
     struct Iterator : std::iterator<std::forward_iterator_tag, ValueType>
     {
@@ -232,7 +229,7 @@ template<typename ValueType, typename Separator>
 struct SplitViewFactory
 {
     template<typename Container>
-    SplitView<RemoveReference<Container>, Separator, ValueType>
+    SplitView<std::remove_reference_t<Container>, Separator, ValueType>
     operator()(Container&& container) const { return {std::move(container), std::move(separator)}; }
 
     template<typename Container>
@@ -250,8 +247,8 @@ struct ConcatView
 {
     using ContainerIt1 = decltype(begin(std::declval<Container1>()));
     using ContainerIt2 = decltype(begin(std::declval<Container2>()));
-    using ValueType = typename std::common_type<typename std::iterator_traits<ContainerIt1>::value_type,
-                                                typename std::iterator_traits<ContainerIt2>::value_type>::type;
+    using ValueType = typename std::common_type_t<typename std::iterator_traits<ContainerIt1>::value_type,
+                                                  typename std::iterator_traits<ContainerIt2>::value_type>;
 
     struct Iterator : std::iterator<std::forward_iterator_tag, ValueType>
     {
