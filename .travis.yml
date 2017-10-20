@@ -20,7 +20,7 @@ install:
       if [ "$CXX" = "clang++" ]; then
         export CXX=clang++-3.6;
       elif [ "$CXX" = "g++" ]; then
-        export CXX=g++-5;
+        export CXX=g++-6;
       fi;
     elif [ $TRAVIS_OS_NAME = osx ]; then
       brew outdated gcc || brew upgrade gcc;
@@ -37,8 +37,8 @@ addons:
       - llvm-toolchain-precise-3.6
     packages:
       - clang-3.6
-      - libstdc++-5-dev
-      - g++-5
+      - libstdc++-6-dev
+      - g++-6
       - libncursesw5-dev
       - libboost-regex1.55-dev
   coverity_scan:
